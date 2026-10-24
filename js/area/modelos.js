@@ -2,6 +2,7 @@
 // Baseados no material da Roberta, sem nada pessoal dela. Trechos entre [colchetes]
 // são para a Rose completar com a leitura de cada cliente.
 
+// Os links partem destes modelos: ao mudar um texto daqui, aumente VERSAO_PADROES em ferramentas/gerar_padroes.py.
 import { PADROES } from './padroes.js';
 
 export const TIPOS = [

@@ -5,9 +5,13 @@
 // Para o link ficar mais curto, as partes que o app já traz dentro dele (diário, check-in,
 // apoio, selos, mensagens, mensagem da semana, alertas — ver area/padroes.js) não viajam
 // inteiras: vai só o que for diferente desses padrões.
+// Melhor ainda: o link parte do modelo de dosha mais parecido (area/modelos.js, que também
+// está dentro do app) e leva só o que a Rose mudou nele.
 //   R1. = formato antigo (conteúdo inteiro), ainda aceito
-//   R2. = formato curto (conteúdo + diferenças em relação aos padrões)
+//   R2. = conteúdo + diferenças em relação aos padrões, ainda aceito
+//   R3. = só as diferenças em relação ao modelo mais parecido (ou aos padrões)
 import { PADROES, VERSAO_PADROES } from './area/padroes.js';
+import { TIPOS, criarModelo } from './area/modelos.js';
 
 function paraBase64Url(bytes) {
   let s = '';
@@ -101,14 +105,26 @@ function descompactar(compacto) {
 
 // ---------- Código do link ----------
 
+const baseDe = modelo => (modelo ? criarModelo(modelo) : structuredClone(PADROES));
+
+async function comprimir(objeto) {
+  return transformar(new TextEncoder().encode(JSON.stringify(objeto)), new CompressionStream('deflate-raw'));
+}
+
 export async function codificar(conteudo) {
-  const json = new TextEncoder().encode(JSON.stringify(compactar(conteudo)));
-  return `R2.${paraBase64Url(await transformar(json, new CompressionStream('deflate-raw')))}`;
+  // Experimenta cada modelo como ponto de partida e fica com o que dá o link mais curto.
+  let melhor = null;
+  for (const modelo of [null, ...TIPOS.map(t => t.valor)]) {
+    const envelope = { $pv: VERSAO_PADROES, $m: modelo, $d: diferenca(conteudo, baseDe(modelo)) ?? {} };
+    const bytes = await comprimir(envelope);
+    if (!melhor || bytes.length < melhor.length) melhor = bytes;
+  }
+  return `R3.${paraBase64Url(melhor)}`;
 }
 
 // Acha o código dentro de um texto colado (o link inteiro ou a mensagem do WhatsApp).
 export function acharCodigo(texto) {
-  const achado = String(texto).match(/R[12]\.[A-Za-z0-9_-]+/);
+  const achado = String(texto).match(/R[123]\.[A-Za-z0-9_-]+/);
   return achado ? achado[0] : null;
 }
 
@@ -117,7 +133,12 @@ export async function decodificar(texto) {
   if (!codigo) throw new Error('codigo-invalido');
   const json = await transformar(deBase64Url(codigo.slice(3)), new DecompressionStream('deflate-raw'));
   const lido = JSON.parse(new TextDecoder().decode(json));
-  const conteudo = codigo.startsWith('R2.') ? descompactar(lido) : lido;
+  let conteudo = lido;
+  if (codigo.startsWith('R2.')) conteudo = descompactar(lido);
+  if (codigo.startsWith('R3.')) {
+    if (lido.$pv !== VERSAO_PADROES) throw new Error('app-desatualizado');
+    conteudo = aplicarDiferenca(baseDe(lido.$m), lido.$d);
+  }
   if (!conteudo?.cliente?.id || !conteudo.mapa) throw new Error('conteudo-invalido');
   return conteudo;
 }
