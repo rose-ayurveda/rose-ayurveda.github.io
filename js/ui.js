@@ -25,6 +25,9 @@ export function secao(titulo, conteudo, aberta = false) {
   return `<details class="secao"${aberta ? ' open' : ''}><summary>${esc(titulo)}</summary><div class="conteudo">${conteudo}</div></details>`;
 }
 
+// Número da versão do app, mostrado em Ajustes (o mesmo de VERSAO em sw.js).
+export const VERSAO_APP = 8;
+
 export const AVISO_LEGAL = 'As orientações são terapêuticas e de estilo de vida, segundo os princípios do Ayurveda, e não substituem diagnóstico ou tratamento médico.';
 
 export function avisoLegal() {

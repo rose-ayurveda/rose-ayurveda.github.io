@@ -205,5 +205,12 @@ if (ehAppAndroid()) {
 
 // O app Android já traz os arquivos dentro dele; o guardião offline é só para o site.
 if ('serviceWorker' in navigator && !MODO_TESTE && !ehAppAndroid()) {
+  // Quando uma versão nova do app assume, a tela recarrega uma vez para usá-la.
+  // (Na primeira visita não há versão anterior, então não recarrega.)
+  const haviaVersao = Boolean(navigator.serviceWorker.controller);
+  let recarregou = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (haviaVersao && !recarregou) { recarregou = true; location.reload(); }
+  });
   navigator.serviceWorker.register('sw.js');
 }

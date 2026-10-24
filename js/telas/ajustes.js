@@ -1,6 +1,6 @@
 // Ajustes da cliente: lembretes, tamanho da letra, modo escuro, atualização,
 // cópia de segurança e apagar os dados.
-import { avisoLegal } from '../ui.js';
+import { avisoLegal, VERSAO_APP } from '../ui.js';
 import { store } from '../store.js';
 import { chaveDoDia } from '../datas.js';
 import { cartaoLembretes } from './praticas.js';
@@ -53,6 +53,7 @@ export function telaAjustes(ajustes, conteudo) {
         <p class="rotulo">Apaga do celular o seu acompanhamento e todos os seus registros.</p>
         <button type="button" class="botao secundario" id="apagar-tudo">Apagar todos os meus dados</button>
       </section>` : ''}
+    <p class="rotulo" style="text-align:center">Versão do app: ${VERSAO_APP}</p>
     ${avisoLegal()}
   `;
 }

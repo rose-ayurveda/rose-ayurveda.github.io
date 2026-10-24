@@ -1,6 +1,6 @@
 // Guarda o app e os áudios no celular para funcionar sem internet.
-// Ao publicar uma nova versão, aumente o número abaixo.
-const VERSAO = 'rose-v7';
+// Ao publicar uma nova versão, aumente o número abaixo E o de VERSAO_APP em js/ui.js.
+const VERSAO = 'rose-v8';
 const ARQUIVOS = [
   './',
   'index.html',
@@ -63,8 +63,14 @@ const ARQUIVOS = [
   'audios/viparita-karani.mp3',
 ];
 
+// "reload": busca cada arquivo direto do site, nunca uma cópia velha guardada pelo navegador
+// (o GitHub Pages pede aos navegadores que guardem os arquivos por 10 minutos).
 self.addEventListener('install', evento => {
-  evento.waitUntil(caches.open(VERSAO).then(c => c.addAll(ARQUIVOS)).then(() => self.skipWaiting()));
+  evento.waitUntil(
+    caches.open(VERSAO)
+      .then(c => c.addAll(ARQUIVOS.map(a => new Request(a, { cache: 'reload' }))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', evento => {
