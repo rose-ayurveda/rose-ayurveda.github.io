@@ -5,8 +5,7 @@
 // textos dos lembretes. Nada do mapa, do diário, dos registros ou do nome da cliente.
 import { store } from './store.js';
 import { assinaturaDosLembretes } from './lembretes.js';
-
-export const SERVIDOR_AVISOS = 'https://rose-avisos.servidor-avisos.workers.dev';
+import { SERVIDOR as SERVIDOR_AVISOS } from './servidor.js';
 
 export function podeUsarAvisos() {
   const instalado = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;

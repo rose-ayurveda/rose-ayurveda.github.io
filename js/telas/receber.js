@@ -53,6 +53,17 @@ export async function ligarReceber(raiz, codigo, redesenhar) {
   try {
     novo = await decodificar(codigo);
   } catch (erro) {
+    const avisos = {
+      'link-vencido': ['Este link venceu', 'Os links valem por 30 dias. Peça à Rose para enviar de novo.'],
+      'sem-internet': ['Sem internet agora', 'Para abrir o link pela primeira vez, o celular precisa de internet. Conecte e toque no link de novo.'],
+    };
+    if (avisos[erro?.message]) {
+      const [titulo, texto] = avisos[erro.message];
+      raiz.innerHTML = `<section class="cartao"><h2 style="margin-top:0">${titulo}</h2><p>${texto}</p><a class="botao" href="#/agora">Voltar</a></section>`;
+      ultimo = { codigo: null, html: '', ligar: () => {}, pronto: Promise.resolve() };
+      terminar();
+      return;
+    }
     raiz.innerHTML = erro?.message === 'app-desatualizado' ? `
       <section class="cartao">
         <h2 style="margin-top:0">O app precisa se atualizar</h2>

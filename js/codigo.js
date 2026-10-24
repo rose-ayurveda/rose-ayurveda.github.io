@@ -10,8 +10,13 @@
 //   R1. = formato antigo (conteúdo inteiro), ainda aceito
 //   R2. = conteúdo + diferenças em relação aos padrões, ainda aceito
 //   R3. = só as diferenças em relação ao modelo mais parecido (ou aos padrões)
+//
+// Link curto (C1.<pacote>.<chave>): o código acima é trancado neste aparelho com uma chave
+// nova e só a versão trancada vai para o servidor da Rose, que a apaga em 30 dias.
+// A chave fica só no link, depois do "#" — parte que nunca é enviada a servidor nenhum.
 import { PADROES, VERSAO_PADROES } from './area/padroes.js';
 import { TIPOS, criarModelo } from './area/modelos.js';
+import { SERVIDOR } from './servidor.js';
 
 function paraBase64Url(bytes) {
   let s = '';
@@ -122,14 +127,50 @@ export async function codificar(conteudo) {
   return `R3.${paraBase64Url(melhor)}`;
 }
 
+// ---------- Link curto (pacote trancado) ----------
+
+async function chaveAes(bytes, uso) {
+  return crypto.subtle.importKey('raw', bytes, 'AES-GCM', false, [uso]);
+}
+
+export async function codigoCurto(conteudo) {
+  const codigo = await codificar(conteudo);
+  const chave = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const trancado = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await chaveAes(chave, 'encrypt'), new TextEncoder().encode(codigo)));
+  const pacote = new Uint8Array(iv.length + trancado.length);
+  pacote.set(iv);
+  pacote.set(trancado, iv.length);
+  const resposta = await fetch(`${SERVIDOR}/guardar`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: paraBase64Url(pacote) });
+  if (!resposta.ok) throw new Error('servidor');
+  const { id } = await resposta.json();
+  return `C1.${id}.${paraBase64Url(chave)}`;
+}
+
+async function abrirPacote(codigo) {
+  const [, id, chave] = codigo.split('.');
+  let resposta;
+  try {
+    resposta = await fetch(`${SERVIDOR}/pacote/${id}`);
+  } catch {
+    throw new Error('sem-internet');
+  }
+  if (resposta.status === 404) throw new Error('link-vencido');
+  if (!resposta.ok) throw new Error('sem-internet');
+  const pacote = deBase64Url((await resposta.json()).dados);
+  const aberto = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: pacote.slice(0, 12) }, await chaveAes(deBase64Url(chave), 'decrypt'), pacote.slice(12));
+  return new TextDecoder().decode(aberto);
+}
+
 // Acha o código dentro de um texto colado (o link inteiro ou a mensagem do WhatsApp).
 export function acharCodigo(texto) {
-  const achado = String(texto).match(/R[123]\.[A-Za-z0-9_-]+/);
+  const achado = String(texto).match(/C1\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}|R[123]\.[A-Za-z0-9_-]+/);
   return achado ? achado[0] : null;
 }
 
 export async function decodificar(texto) {
-  const codigo = acharCodigo(String(texto).replace(/\s/g, ''));
+  let codigo = acharCodigo(String(texto).replace(/\s/g, ''));
+  if (codigo?.startsWith('C1.')) codigo = acharCodigo(await abrirPacote(codigo));
   if (!codigo) throw new Error('codigo-invalido');
   const json = await transformar(deBase64Url(codigo.slice(3)), new DecompressionStream('deflate-raw'));
   const lido = JSON.parse(new TextDecoder().decode(json));

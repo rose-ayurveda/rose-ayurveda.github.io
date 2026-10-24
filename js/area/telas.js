@@ -5,7 +5,7 @@ import * as area from './dados-area.js';
 import { SECOES } from './secoes.js';
 import { campos, ligarFormulario } from './formulario.js';
 import { TIPOS, criarModelo } from './modelos.js';
-import { codificar, linkDoConteudo } from '../codigo.js';
+import { codificar, codigoCurto, linkDoConteudo } from '../codigo.js';
 import { mudancas } from '../atualizacao.js';
 import { salvarArquivo, abrirArquivo } from '../arquivos.js';
 import { ehAppAndroid } from '../nativo.js';
@@ -236,7 +236,7 @@ function telaEnviar(registro) {
     </section>
     <section class="cartao" id="resultado-envio" style="display:none">
       <h3 style="margin-top:0">Link pronto</h3>
-      <p class="rotulo">Mande pelo WhatsApp. O conteúdo vai dentro do próprio link e não fica guardado em nenhum site.</p>
+      <p class="rotulo">Mande pelo WhatsApp. O conteúdo vai trancado: só quem tem este link consegue abrir, e a cópia trancada é apagada sozinha em 30 dias.</p>
       <textarea id="texto-envio" rows="5" readonly></textarea>
       <div class="grade-acoes" style="margin-top:10px">
         <button type="button" class="botao" id="compartilhar">Compartilhar</button>
@@ -259,13 +259,23 @@ function ligarEnviar(raiz, registro) {
       registro.envios = [...(registro.envios || []), { versao: registro.conteudo.versao, data: new Date().toISOString() }];
       area.salvarCliente(registro);
     }
-    const link = linkDoConteudo(await codificar(registro.enviado));
+    // Link curto (pacote trancado no servidor). Sem conexão com o servidor, vai o link longo.
+    let link;
+    let curto = true;
+    try {
+      link = linkDoConteudo(await codigoCurto(registro.enviado));
+    } catch {
+      curto = false;
+      link = linkDoConteudo(await codificar(registro.enviado));
+    }
     const primeiro = registro.enviado.versao === 1;
     caixa.value = primeiro
       ? `Oi, ${registro.conteudo.cliente.primeiroNome}! 🌸\nAqui está o app do seu acompanhamento ayurvédico.\n\nToque no link abaixo (no iPhone ele abre no Safari; no Android, no Chrome) e siga os passos que aparecem.\n\n${link}`
       : `Oi, ${registro.conteudo.cliente.primeiroNome}! 🌸\nAtualizei o seu acompanhamento. Toque no link abaixo para receber:\n\n${link}`;
     raiz.querySelector('#resultado-envio').style.display = 'block';
-    aviso.textContent = `Versão ${registro.enviado.versao} · link com ${Math.round(link.length / 1000)} mil caracteres.`;
+    aviso.textContent = curto
+      ? `Versão ${registro.enviado.versao} · link curto, vale por 30 dias.`
+      : `Versão ${registro.enviado.versao} · sem conexão com o servidor: foi gerado o link longo (${Math.round(link.length / 1000)} mil caracteres), que também funciona.`;
   });
   raiz.querySelector('#copiar-envio').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(caixa.value); aviso.textContent = 'Copiado. Cole na conversa do WhatsApp com a cliente.'; } catch { caixa.select(); }
