@@ -1,6 +1,6 @@
 // Guarda o app e os áudios no celular para funcionar sem internet.
 // Ao publicar uma nova versão, aumente o número abaixo E o de VERSAO_APP em js/ui.js.
-const VERSAO = 'rose-v8';
+const VERSAO = 'rose-v9';
 const ARQUIVOS = [
   './',
   'index.html',

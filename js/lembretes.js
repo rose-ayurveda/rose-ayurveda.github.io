@@ -81,6 +81,18 @@ export function ehIPhone() {
 
 const NOME_ARQUIVO = 'lembretes-rose-ayurveda.ics';
 
+// iPhone: o calendário só oferece "Adicionar todos" quando o arquivo é aberto como uma
+// página. O app guarda o arquivo no próprio celular (no mesmo lugar que usa para funcionar
+// sem internet) e abre esse endereço; o guardião offline (sw.js) entrega o arquivo dali.
+// Nada sai do celular: sem o guardião ativo, não abre (e nada é enviado).
+export async function abrirCalendarioComoPagina(ics) {
+  if (!navigator.serviceWorker?.controller || !window.caches) return false;
+  const gaveta = await caches.open('rose-lembretes');
+  await gaveta.put(NOME_ARQUIVO, new Response(ics, { headers: { 'Content-Type': 'text/calendar; charset=utf-8' } }));
+  location.href = NOME_ARQUIVO;
+  return true;
+}
+
 // Entrega o arquivo de lembretes. No iPhone, o app instalado não abre o calendário
 // direto: o arquivo vai pela tela "Compartilhar" (Calendário ou Salvar em Arquivos).
 // "baixar" = alternativa: o iPhone baixa o arquivo, e ele é aberto pelos Downloads.

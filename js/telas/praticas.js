@@ -4,7 +4,7 @@ import { store } from '../store.js';
 import { chaveDoDia } from '../datas.js';
 import { estado, horarioEfetivo, contagem, marcarFeito, pularHoje, desfazerPulo, adiar } from '../rotina.js';
 import { cronometroHTML, ligarCronometros } from '../cronometro.js';
-import { assinaturaDosLembretes, gerarCalendario, abrirCalendario } from '../lembretes.js';
+import { assinaturaDosLembretes, gerarCalendario, abrirCalendario, abrirCalendarioComoPagina, ehIPhone } from '../lembretes.js';
 import { audiosDaCliente, playerHTML, ligarPlayers } from '../audios.js';
 import { ehAppAndroid, agendarLembretes } from '../nativo.js';
 
@@ -30,14 +30,10 @@ export function cartaoLembretes(conteudo) {
     return `
       <section class="cartao" style="border:2px solid var(--marca)">
         <h3 style="margin-top:0">Os lembretes apareceram no seu calendário?</h3>
-        <ol class="lista numerada">
-          <li>Na tela <strong>Compartilhar</strong>, toque em <strong>Calendário</strong>. Se não aparecer, toque em <strong>Salvar em Arquivos</strong> e depois em <strong>Salvar</strong>.</li>
-          <li>Se salvou em Arquivos: abra o app <strong>Arquivos</strong>, toque em <strong>lembretes-rose-ayurveda</strong> e depois em <strong>Adicionar todos</strong>.</li>
-          <li>Abra o <strong>Calendário</strong> do iPhone e confira os eventos com a folhinha 🌿.</li>
-        </ol>
+        <p class="texto-longo">Na tela do calendário, toque em <strong>Adicionar todos</strong>. Depois, abra o <strong>Calendário</strong> do iPhone e confira os eventos com a folhinha 🌿.</p>
         <button type="button" class="botao" data-confirmar-lembretes>Sim, apareceram</button>
         <button type="button" class="botao secundario" data-lembretes>Tentar de novo</button>
-        <button type="button" class="botao secundario" data-baixar-lembretes>Baixar o arquivo de outro jeito</button>
+        <button type="button" class="botao secundario" data-baixar-lembretes>Enviar o arquivo de outro jeito</button>
       </section>`;
   }
   if (ativados === atual) {
@@ -59,7 +55,7 @@ export function cartaoLembretes(conteudo) {
         : 'Um toque e o seu celular passa a avisar nos horários da sua rotina — mesmo com o app fechado.'}</p>
       <p class="rotulo">${ehAppAndroid()
         ? 'O celular vai pedir permissão para enviar notificações: toque em <strong>Permitir</strong>.'
-        : 'No iPhone, vai abrir a tela <strong>Compartilhar</strong>: escolha <strong>Calendário</strong> (ou <strong>Salvar em Arquivos</strong>).'}</p>
+        : 'No iPhone, toque em <strong>“Adicionar todos”</strong> na tela do calendário que vai abrir.'}</p>
       <button type="button" class="botao" data-lembretes>Ativar lembretes</button>
     </section>`;
 }
@@ -73,15 +69,18 @@ export function ligarLembretes(raiz, conteudo, redesenhar) {
       redesenhar({ manterRolagem: true });
       return;
     }
-    const hoje = chaveDoDia(conteudo.cliente.fusoHorario);
-    const resultado = await abrirCalendario(gerarCalendario(conteudo, hoje));
-    if (resultado !== 'cancelado') store.salvarAjustes({ ...store.ajustes(), lembretes: null, lembretesPendente: assinaturaDosLembretes(conteudo) });
+    const ics = gerarCalendario(conteudo, chaveDoDia(conteudo.cliente.fusoHorario));
+    store.salvarAjustes({ ...store.ajustes(), lembretes: null, lembretesPendente: assinaturaDosLembretes(conteudo) });
+    // iPhone: primeiro, abrir como página ("Adicionar todos"); se não der, a tela Compartilhar.
+    if (ehIPhone() && await abrirCalendarioComoPagina(ics)) return;
+    const resultado = await abrirCalendario(ics);
+    if (resultado === 'cancelado') store.salvarAjustes({ ...store.ajustes(), lembretesPendente: null });
     redesenhar({ manterRolagem: true });
   }));
 
-  // Alternativa: baixar o arquivo (o iPhone mostra o download; ao tocar nele, "Adicionar todos").
+  // Alternativa: enviar o arquivo pela tela Compartilhar (ou baixar, fora do iPhone).
   raiz.querySelectorAll('[data-baixar-lembretes]').forEach(b => b.addEventListener('click', () => {
-    abrirCalendario(gerarCalendario(conteudo, chaveDoDia(conteudo.cliente.fusoHorario)), 'baixar');
+    abrirCalendario(gerarCalendario(conteudo, chaveDoDia(conteudo.cliente.fusoHorario)));
   }));
 
   raiz.querySelectorAll('[data-confirmar-lembretes]').forEach(b => b.addEventListener('click', () => {
