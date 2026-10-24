@@ -2,7 +2,7 @@
 // No iPhone, o link abre no Safari, que guarda os dados separado do app instalado:
 // por isso mostramos o passo "Copiar" e, no app, "Colar meu acompanhamento".
 import { esc, avisoLegal } from '../ui.js';
-import { decodificar } from '../codigo.js';
+import { decodificar, acharCodigo } from '../codigo.js';
 import { avaliar, aplicar } from '../atualizacao.js';
 import { ehIPhone } from '../lembretes.js';
 import { store } from '../store.js';
@@ -51,8 +51,13 @@ export async function ligarReceber(raiz, codigo, redesenhar) {
   let novo;
   try {
     novo = await decodificar(codigo);
-  } catch {
-    raiz.innerHTML = `
+  } catch (erro) {
+    raiz.innerHTML = erro?.message === 'app-desatualizado' ? `
+      <section class="cartao">
+        <h2 style="margin-top:0">O app precisa se atualizar</h2>
+        <p>Feche o app e abra de novo, com internet, e depois toque no link outra vez.</p>
+        <a class="botao" href="#/agora">Voltar</a>
+      </section>` : `
       <section class="cartao">
         <h2 style="margin-top:0">Não consegui abrir este link</h2>
         <p>Ele pode ter chegado incompleto. Peça à Rose para enviar de novo, ou copie o link inteiro e use “Colar meu acompanhamento”.</p>
@@ -133,8 +138,9 @@ function ligarBotoes(raiz, resultado, novo, redesenhar) {
 export async function colarDoCelular() {
   try {
     const texto = await navigator.clipboard.readText();
-    if (texto && texto.includes('R1.')) {
-      location.hash = `#/receber/${texto.slice(texto.indexOf('R1.')).trim()}`;
+    const codigo = texto && acharCodigo(texto.replace(/\s/g, ''));
+    if (codigo) {
+      location.hash = `#/receber/${codigo}`;
       return true;
     }
   } catch { /* o iPhone pode não permitir; a cliente cola à mão */ }
@@ -158,9 +164,9 @@ export function ligarColar(raiz) {
   const caixa = raiz.querySelector('#colar-manual');
   const campo = raiz.querySelector('#texto-colado');
   const abrir = () => {
-    const texto = campo.value;
-    if (texto.includes('R1.')) {
-      location.hash = `#/receber/${texto.slice(texto.indexOf('R1.')).trim()}`;
+    const codigo = acharCodigo(campo.value.replace(/\s/g, ''));
+    if (codigo) {
+      location.hash = `#/receber/${codigo}`;
       return true;
     }
     return false;

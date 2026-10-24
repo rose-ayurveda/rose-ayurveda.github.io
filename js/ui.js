@@ -26,7 +26,7 @@ export function secao(titulo, conteudo, aberta = false) {
 }
 
 // Número da versão do app, mostrado em Ajustes (o mesmo de VERSAO em sw.js).
-export const VERSAO_APP = 9;
+export const VERSAO_APP = 10;
 
 export const AVISO_LEGAL = 'As orientações são terapêuticas e de estilo de vida, segundo os princípios do Ayurveda, e não substituem diagnóstico ou tratamento médico.';
 

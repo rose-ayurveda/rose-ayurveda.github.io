@@ -240,8 +240,8 @@ function ligarEnviar(raiz, registro) {
     const link = linkDoConteudo(await codificar(registro.enviado));
     const primeiro = registro.enviado.versao === 1;
     caixa.value = primeiro
-      ? `Oi, ${registro.conteudo.cliente.primeiroNome}! Aqui está o app do seu acompanhamento ayurvédico. Abra este link no Safari (iPhone) ou no Chrome (Android):\n\n${link}`
-      : `Oi, ${registro.conteudo.cliente.primeiroNome}! Atualizei o seu acompanhamento. Toque no link para receber a atualização:\n\n${link}`;
+      ? `Oi, ${registro.conteudo.cliente.primeiroNome}! 🌸\nAqui está o app do seu acompanhamento ayurvédico.\n\nToque no link abaixo (no iPhone ele abre no Safari; no Android, no Chrome) e siga os passos que aparecem.\n\n${link}`
+      : `Oi, ${registro.conteudo.cliente.primeiroNome}! 🌸\nAtualizei o seu acompanhamento. Toque no link abaixo para receber:\n\n${link}`;
     raiz.querySelector('#resultado-envio').style.display = 'block';
     aviso.textContent = `Versão ${registro.enviado.versao} · link com ${Math.round(link.length / 1000)} mil caracteres.`;
   });

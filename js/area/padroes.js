@@ -1,6 +1,145 @@
 // Gerado por ferramentas/gerar_padroes.py a partir do conteúdo aprovado da Roberta.
-// Partes comuns a todos os modelos: mensagens, mensagem da semana, selos, check-in, apoio e alertas.
+// Partes comuns: diário, check-in, apoio, selos, mensagens, mensagem da semana e alertas.
+// Também servem de base para encurtar o link: ele leva só o que for diferente disto.
+export const VERSAO_PADROES = 1;
 export const PADROES = {
+  "diario": {
+    "horario": "22:00",
+    "itens": [
+      {
+        "id": "sono",
+        "pergunta": "Como foi o sono da noite passada?",
+        "tipo": "escala",
+        "rotulos": [
+          "Muito ruim",
+          "Ruim",
+          "Regular",
+          "Bom",
+          "Muito bom"
+        ],
+        "melhorAlto": true
+      },
+      {
+        "id": "doce",
+        "pergunta": "Vontade de doce hoje",
+        "tipo": "escala",
+        "rotulos": [
+          "Nenhuma",
+          "Leve",
+          "Média",
+          "Forte",
+          "Muito forte"
+        ],
+        "melhorAlto": false
+      },
+      {
+        "id": "digestao",
+        "pergunta": "Digestão hoje",
+        "tipo": "escala",
+        "rotulos": [
+          "Muito difícil",
+          "Difícil",
+          "Regular",
+          "Boa",
+          "Muito boa"
+        ],
+        "melhorAlto": true
+      },
+      {
+        "id": "energia",
+        "pergunta": "Energia hoje",
+        "tipo": "escala",
+        "rotulos": [
+          "Muito baixa",
+          "Baixa",
+          "Média",
+          "Boa",
+          "Muito boa"
+        ],
+        "melhorAlto": true
+      },
+      {
+        "id": "ansiedade",
+        "pergunta": "Ansiedade hoje",
+        "tipo": "escala",
+        "rotulos": [
+          "Nenhuma",
+          "Leve",
+          "Média",
+          "Forte",
+          "Muito forte"
+        ],
+        "melhorAlto": false
+      },
+      {
+        "id": "lingua",
+        "pergunta": "Língua ao acordar",
+        "tipo": "opcoes",
+        "opcoes": [
+          "Limpa",
+          "Camada fina",
+          "Camada espessa"
+        ]
+      },
+      {
+        "id": "doce-horario",
+        "pergunta": "Em que horário foi o doce?",
+        "tipo": "opcoes",
+        "opcoes": [
+          "Até 14h",
+          "14h–18h",
+          "Depois das 18h"
+        ],
+        "seNaoMarcou": "sem-doce"
+      },
+      {
+        "id": "doce-quanto",
+        "pergunta": "E quanto?",
+        "tipo": "opcoes",
+        "opcoes": [
+          "Um pouco",
+          "Uma porção",
+          "Mais do que queria"
+        ],
+        "seNaoMarcou": "sem-doce"
+      },
+      {
+        "id": "fome-acordar",
+        "pergunta": "Como estava a sua fome ao acordar?",
+        "tipo": "opcoes",
+        "opcoes": [
+          "Com fome",
+          "Pouca fome",
+          "Sem fome"
+        ]
+      },
+      {
+        "id": "agua-chas",
+        "pergunta": "Você tomou água morna e os chás indicados?",
+        "tipo": "opcoes",
+        "opcoes": [
+          "Sim",
+          "Em parte",
+          "Não"
+        ]
+      },
+      {
+        "id": "intestino",
+        "pergunta": "O intestino funcionou hoje?",
+        "tipo": "opcoes",
+        "opcoes": [
+          "Sim, bem",
+          "Sim, com dificuldade",
+          "Não"
+        ]
+      }
+    ],
+    "observacao": "Quer anotar algo sobre o dia? (opcional)",
+    "semanal": {
+      "diaDaSemana": 0,
+      "pergunta": "O que foi mais difícil na sua alimentação esta semana? (opcional)"
+    }
+  },
   "checkin": {
     "refeicoes": [
       "desjejum",
