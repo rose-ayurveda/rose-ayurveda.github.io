@@ -4,6 +4,7 @@ import * as area from './area/dados-area.js';
 import { desenharArea } from './area/telas.js';
 import { telaReceber, ligarReceber } from './telas/receber.js';
 import { ehAppAndroid, escutarLinks, manterLembretesEmDia } from './nativo.js';
+import { manterAvisosEmDia } from './avisos.js';
 import { icones } from './ui.js';
 import { marcaLotus } from './lotus.js';
 import { telaAgora, ligarAgora } from './telas/agora.js';
@@ -213,4 +214,5 @@ if ('serviceWorker' in navigator && !MODO_TESTE && !ehAppAndroid()) {
     if (haviaVersao && !recarregou) { recarregou = true; location.reload(); }
   });
   navigator.serviceWorker.register('sw.js');
+  if (store.conteudo()) manterAvisosEmDia(store.conteudo());
 }

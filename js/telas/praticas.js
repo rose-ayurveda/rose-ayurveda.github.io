@@ -7,6 +7,7 @@ import { cronometroHTML, ligarCronometros } from '../cronometro.js';
 import { assinaturaDosLembretes, gerarCalendario, abrirCalendario, abrirCalendarioComoPagina, ehIPhone } from '../lembretes.js';
 import { audiosDaCliente, playerHTML, ligarPlayers } from '../audios.js';
 import { ehAppAndroid, agendarLembretes } from '../nativo.js';
+import { podeUsarAvisos, ativarAvisos, desativarAvisos } from '../avisos.js';
 
 const ABAS = [
   { id: 'rotina', nome: 'Rotina' },
@@ -22,11 +23,26 @@ const PREPAROS = {
 
 // ---------- Lembretes ----------
 
+// iPhone com o app na Tela de Início: notificações do próprio app (ver avisos.js).
+const usaAvisos = () => ehIPhone() && podeUsarAvisos();
+
 export function cartaoLembretes(conteudo) {
-  const { lembretes: ativados, lembretesPendente } = store.ajustes();
+  const { lembretes: ativados, lembretesPendente, lembretesPor } = store.ajustes();
   const atual = assinaturaDosLembretes(conteudo);
+  const porAvisos = lembretesPor === 'avisos';
+  // Quem ativou pelo calendário antes das notificações do app: oferece trocar.
+  if (ativados && !porAvisos && usaAvisos()) {
+    return `
+      <section class="cartao" style="border:2px solid var(--marca)">
+        <h3 style="margin-top:0">Lembretes como notificação do app</h3>
+        <p>Agora os lembretes podem chegar como notificações do app Rose Ayurveda, em vez do Calendário.</p>
+        <p class="rotulo">O iPhone vai perguntar se o app pode enviar notificações: toque em <strong>Permitir</strong>.</p>
+        <button type="button" class="botao" data-lembretes>Trocar para notificações</button>
+        <p class="rotulo">Depois, apague do Calendário os eventos com a folhinha 🌿: abra cada um, toque em <strong>Apagar evento</strong> e escolha <strong>Apagar todos os eventos futuros</strong>.</p>
+      </section>`;
+  }
   // iPhone: o arquivo foi entregue; os lembretes só contam como ativados quando ela confirma.
-  if (ativados !== atual && lembretesPendente === atual) {
+  if (!porAvisos && ativados !== atual && lembretesPendente === atual) {
     return `
       <section class="cartao" style="border:2px solid var(--marca)">
         <h3 style="margin-top:0">Os lembretes apareceram no seu calendário?</h3>
@@ -40,8 +56,9 @@ export function cartaoLembretes(conteudo) {
     return `
       <section class="cartao suave">
         <h3 style="margin-top:0">Lembretes ativados</h3>
-        <p class="rotulo">O seu celular avisa nos horários da sua rotina, mesmo com o app fechado.</p>
+        <p class="rotulo">${porAvisos ? 'As notificações do app chegam' : 'O seu celular avisa'} nos horários da sua rotina, mesmo com o app fechado.</p>
         <button type="button" class="botao secundario" data-lembretes>Ativar de novo</button>
+        ${porAvisos ? '<button type="button" class="botao secundario" data-desativar-lembretes>Desativar lembretes</button>' : ''}
       </section>`;
   }
   const mudou = Boolean(ativados);
@@ -49,11 +66,11 @@ export function cartaoLembretes(conteudo) {
     <section class="cartao" style="border:2px solid var(--marca)">
       <h3 style="margin-top:0">${mudou ? 'Seus horários mudaram' : 'Ative seus lembretes'}</h3>
       <p>${mudou
-        ? (ehAppAndroid()
+        ? (ehAppAndroid() || porAvisos
           ? 'Toque no botão para atualizar os lembretes com os novos horários.'
           : 'Toque no botão para atualizar os lembretes. Depois, apague no calendário os eventos antigos “Rose Ayurveda”.')
         : 'Um toque e o seu celular passa a avisar nos horários da sua rotina — mesmo com o app fechado.'}</p>
-      <p class="rotulo">${ehAppAndroid()
+      <p class="rotulo">${ehAppAndroid() || usaAvisos()
         ? 'O celular vai pedir permissão para enviar notificações: toque em <strong>Permitir</strong>.'
         : 'No iPhone, toque em <strong>“Adicionar todos”</strong> na tela do calendário que vai abrir.'}</p>
       <button type="button" class="botao" data-lembretes>Ativar lembretes</button>
@@ -69,6 +86,13 @@ export function ligarLembretes(raiz, conteudo, redesenhar) {
       redesenhar({ manterRolagem: true });
       return;
     }
+    if (usaAvisos()) {
+      const resultado = await ativarAvisos(conteudo);
+      if (resultado === 'negado') alert('Para receber os lembretes, permita as notificações: abra os Ajustes do iPhone, toque em Notificações e depois em Rose Ayurveda.');
+      if (resultado === 'erro') alert('Não consegui ativar agora. Confira se o celular está com internet e tente de novo.');
+      redesenhar({ manterRolagem: true });
+      return;
+    }
     const ics = gerarCalendario(conteudo, chaveDoDia(conteudo.cliente.fusoHorario));
     store.salvarAjustes({ ...store.ajustes(), lembretes: null, lembretesPendente: assinaturaDosLembretes(conteudo) });
     // iPhone: primeiro, abrir como página ("Adicionar todos"); se não der, a tela Compartilhar.
@@ -81,6 +105,12 @@ export function ligarLembretes(raiz, conteudo, redesenhar) {
   // Alternativa: enviar o arquivo pela tela Compartilhar (ou baixar, fora do iPhone).
   raiz.querySelectorAll('[data-baixar-lembretes]').forEach(b => b.addEventListener('click', () => {
     abrirCalendario(gerarCalendario(conteudo, chaveDoDia(conteudo.cliente.fusoHorario)));
+  }));
+
+  raiz.querySelectorAll('[data-desativar-lembretes]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('Parar de receber os lembretes da sua rotina?')) return;
+    await desativarAvisos();
+    redesenhar({ manterRolagem: true });
   }));
 
   raiz.querySelectorAll('[data-confirmar-lembretes]').forEach(b => b.addEventListener('click', () => {

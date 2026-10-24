@@ -7,6 +7,7 @@ import { avaliar, aplicar } from '../atualizacao.js';
 import { ehIPhone } from '../lembretes.js';
 import { store } from '../store.js';
 import { ehAppAndroid, linkParaOApp, manterLembretesEmDia } from '../nativo.js';
+import { manterAvisosEmDia } from '../avisos.js';
 
 export function estaInstalado() {
   return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -85,6 +86,7 @@ export async function ligarReceber(raiz, codigo, redesenhar) {
   } else {
     aplicar(novo);
     manterLembretesEmDia(novo);
+    manterAvisosEmDia(novo);
     html = resultado.situacao === 'instalado'
       ? `<section class="cartao suave">
            <h1>Bem-vinda, ${esc(novo.cliente.primeiroNome)}</h1>

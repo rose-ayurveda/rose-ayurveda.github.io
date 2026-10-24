@@ -1,6 +1,6 @@
 // Guarda o app e os áudios no celular para funcionar sem internet.
 // Ao publicar uma nova versão, aumente o número abaixo E o de VERSAO_APP em js/ui.js.
-const VERSAO = 'rose-v11';
+const VERSAO = 'rose-v12';
 const ARQUIVOS = [
   './',
   'index.html',
@@ -25,6 +25,7 @@ const ARQUIVOS = [
   'js/mensagens.js',
   'js/codigo.js',
   'js/nativo.js',
+  'js/avisos.js',
   'js/atualizacao.js',
   'js/arquivos.js',
   'js/area/dados-area.js',
@@ -97,6 +98,22 @@ async function respostaParcial(pedido, guardado) {
     },
   });
 }
+
+// Lembretes do iPhone: o servidor de avisos manda o título e o texto; aqui eles viram notificação.
+self.addEventListener('push', evento => {
+  let aviso = { titulo: '🌿 Rose Ayurveda', texto: 'Hora de cuidar de você.' };
+  try { aviso = { ...aviso, ...evento.data.json() }; } catch { /* aviso sem texto */ }
+  evento.waitUntil(self.registration.showNotification(aviso.titulo, { body: aviso.texto, icon: 'icones/icone-192.png' }));
+});
+
+// Tocar na notificação abre o app (ou traz para a frente, se já estiver aberto).
+self.addEventListener('notificationclick', evento => {
+  evento.notification.close();
+  evento.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(janelas => (janelas[0] ? janelas[0].focus() : self.clients.openWindow('./#/agora'))),
+  );
+});
 
 self.addEventListener('fetch', evento => {
   const pedido = evento.request;
