@@ -21,10 +21,18 @@ export async function salvarArquivo(texto, nome, tipo = 'application/json') {
 }
 
 // Abre o seletor de arquivos e devolve o conteúdo de texto escolhido.
+// O campo fica preso à página enquanto a janela de escolha está aberta: solto, o Chrome
+// às vezes o descarta e o arquivo escolhido nunca chega.
 export function abrirArquivo(aceitar = '.json,application/json') {
   return new Promise(resolver => {
     const entrada = Object.assign(document.createElement('input'), { type: 'file', accept: aceitar });
-    entrada.addEventListener('change', async () => resolver(entrada.files[0] ? await entrada.files[0].text() : null));
+    entrada.style.display = 'none';
+    document.body.appendChild(entrada);
+    entrada.addEventListener('change', async () => {
+      const arquivo = entrada.files[0];
+      entrada.remove();
+      resolver(arquivo ? await arquivo.text() : null);
+    });
     entrada.click();
   });
 }
