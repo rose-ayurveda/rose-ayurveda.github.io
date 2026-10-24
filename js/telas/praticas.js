@@ -23,8 +23,23 @@ const PREPAROS = {
 // ---------- Lembretes ----------
 
 export function cartaoLembretes(conteudo) {
-  const ativados = store.ajustes().lembretes;
+  const { lembretes: ativados, lembretesPendente } = store.ajustes();
   const atual = assinaturaDosLembretes(conteudo);
+  // iPhone: o arquivo foi entregue; os lembretes só contam como ativados quando ela confirma.
+  if (ativados !== atual && lembretesPendente === atual) {
+    return `
+      <section class="cartao" style="border:2px solid var(--marca)">
+        <h3 style="margin-top:0">Os lembretes apareceram no seu calendário?</h3>
+        <ol class="lista numerada">
+          <li>Na tela <strong>Compartilhar</strong>, toque em <strong>Calendário</strong>. Se não aparecer, toque em <strong>Salvar em Arquivos</strong> e depois em <strong>Salvar</strong>.</li>
+          <li>Se salvou em Arquivos: abra o app <strong>Arquivos</strong>, toque em <strong>lembretes-rose-ayurveda</strong> e depois em <strong>Adicionar todos</strong>.</li>
+          <li>Abra o <strong>Calendário</strong> do iPhone e confira os eventos com a folhinha 🌿.</li>
+        </ol>
+        <button type="button" class="botao" data-confirmar-lembretes>Sim, apareceram</button>
+        <button type="button" class="botao secundario" data-lembretes>Tentar de novo</button>
+        <button type="button" class="botao secundario" data-baixar-lembretes>Baixar o arquivo de outro jeito</button>
+      </section>`;
+  }
   if (ativados === atual) {
     return `
       <section class="cartao suave">
@@ -44,7 +59,7 @@ export function cartaoLembretes(conteudo) {
         : 'Um toque e o seu celular passa a avisar nos horários da sua rotina — mesmo com o app fechado.'}</p>
       <p class="rotulo">${ehAppAndroid()
         ? 'O celular vai pedir permissão para enviar notificações: toque em <strong>Permitir</strong>.'
-        : 'No iPhone, toque em <strong>“Adicionar todos”</strong> na tela que vai abrir.'}</p>
+        : 'No iPhone, vai abrir a tela <strong>Compartilhar</strong>: escolha <strong>Calendário</strong> (ou <strong>Salvar em Arquivos</strong>).'}</p>
       <button type="button" class="botao" data-lembretes>Ativar lembretes</button>
     </section>`;
 }
@@ -59,9 +74,19 @@ export function ligarLembretes(raiz, conteudo, redesenhar) {
       return;
     }
     const hoje = chaveDoDia(conteudo.cliente.fusoHorario);
-    store.salvarAjustes({ ...store.ajustes(), lembretes: assinaturaDosLembretes(conteudo) });
-    abrirCalendario(gerarCalendario(conteudo, hoje));
-    setTimeout(() => redesenhar({ manterRolagem: true }), 500);
+    const resultado = await abrirCalendario(gerarCalendario(conteudo, hoje));
+    if (resultado !== 'cancelado') store.salvarAjustes({ ...store.ajustes(), lembretes: null, lembretesPendente: assinaturaDosLembretes(conteudo) });
+    redesenhar({ manterRolagem: true });
+  }));
+
+  // Alternativa: baixar o arquivo (o iPhone mostra o download; ao tocar nele, "Adicionar todos").
+  raiz.querySelectorAll('[data-baixar-lembretes]').forEach(b => b.addEventListener('click', () => {
+    abrirCalendario(gerarCalendario(conteudo, chaveDoDia(conteudo.cliente.fusoHorario)), 'baixar');
+  }));
+
+  raiz.querySelectorAll('[data-confirmar-lembretes]').forEach(b => b.addEventListener('click', () => {
+    store.salvarAjustes({ ...store.ajustes(), lembretes: assinaturaDosLembretes(conteudo), lembretesPendente: null });
+    redesenhar({ manterRolagem: true });
   }));
 }
 

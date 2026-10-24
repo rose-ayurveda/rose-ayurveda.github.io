@@ -145,20 +145,32 @@ export function caixaColar(rotuloBotao) {
   return `
     <button type="button" class="botao" id="colar">${esc(rotuloBotao)}</button>
     <div id="colar-manual" style="display:none;margin-top:10px">
-      <label class="rotulo" for="texto-colado">Toque e segure na caixa abaixo e escolha <strong>Colar</strong>:</label>
+      <label class="rotulo" for="texto-colado">Se nada acontecer, toque e segure dentro da caixa abaixo e escolha <strong>Colar</strong>:</label>
       <textarea id="texto-colado" rows="3"></textarea>
       <button type="button" class="botao" id="usar-colado" style="margin-top:8px">Abrir</button>
     </div>`;
 }
 
+// No iPhone, ler o que foi copiado mostra uma bolhinha "Colar" que pode passar despercebida
+// (e o pedido fica esperando para sempre). Por isso a caixinha de colar à mão aparece já
+// no primeiro toque, e o que for colado nela é aberto sozinho.
 export function ligarColar(raiz) {
-  raiz.querySelector('#colar')?.addEventListener('click', async () => {
-    if (await colarDoCelular()) return;
-    raiz.querySelector('#colar-manual').style.display = 'block';
-    raiz.querySelector('#texto-colado').focus();
+  const caixa = raiz.querySelector('#colar-manual');
+  const campo = raiz.querySelector('#texto-colado');
+  const abrir = () => {
+    const texto = campo.value;
+    if (texto.includes('R1.')) {
+      location.hash = `#/receber/${texto.slice(texto.indexOf('R1.')).trim()}`;
+      return true;
+    }
+    return false;
+  };
+  raiz.querySelector('#colar')?.addEventListener('click', () => {
+    caixa.style.display = 'block';
+    colarDoCelular();
   });
+  campo?.addEventListener('input', abrir);
   raiz.querySelector('#usar-colado')?.addEventListener('click', () => {
-    const texto = raiz.querySelector('#texto-colado').value;
-    if (texto.includes('R1.')) location.hash = `#/receber/${texto.slice(texto.indexOf('R1.')).trim()}`;
+    if (!abrir()) campo.placeholder = 'Cole aqui o link que a Rose mandou pelo WhatsApp.';
   });
 }

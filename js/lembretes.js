@@ -79,17 +79,30 @@ export function ehIPhone() {
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-// Entrega o arquivo ao celular. No iPhone, abrir o calendário direto mostra
-// a tela "Adicionar todos"; nos outros aparelhos, o arquivo é baixado.
-export function abrirCalendario(ics) {
-  if (ehIPhone()) {
-    location.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
-    return;
+const NOME_ARQUIVO = 'lembretes-rose-ayurveda.ics';
+
+// Entrega o arquivo de lembretes. No iPhone, o app instalado não abre o calendário
+// direto: o arquivo vai pela tela "Compartilhar" (Calendário ou Salvar em Arquivos).
+// "baixar" = alternativa: o iPhone baixa o arquivo, e ele é aberto pelos Downloads.
+export async function abrirCalendario(ics, modo = 'compartilhar') {
+  const arquivo = new File([ics], NOME_ARQUIVO, { type: 'text/calendar' });
+  if (modo === 'compartilhar' && ehIPhone() && navigator.canShare?.({ files: [arquivo] })) {
+    try {
+      await navigator.share({ files: [arquivo] });
+      return 'compartilhado';
+    } catch (erro) {
+      if (erro.name === 'AbortError') return 'cancelado';
+    }
   }
-  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
-  const link = Object.assign(document.createElement('a'), { href: url, download: 'lembretes-rose-ayurveda.ics' });
+  baixar(arquivo);
+  return 'baixado';
+}
+
+function baixar(arquivo) {
+  const url = URL.createObjectURL(arquivo);
+  const link = Object.assign(document.createElement('a'), { href: url, download: NOME_ARQUIVO });
   document.body.appendChild(link);
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  setTimeout(() => URL.revokeObjectURL(url), 120_000);
 }
