@@ -9,7 +9,18 @@ import { gerarRelatorio, salvarPdf } from '../relatorio.js';
 
 const DOSHA = { vata: 'var(--vata)', pitta: 'var(--pitta)', kapha: 'var(--kapha)' };
 
-function cartaoDiario(hoje) {
+// Os nomes curtos das perguntas do diário (cada cliente pode ter as suas).
+const NOMES_DIARIO = { sono: 'sono', doce: 'vontade de doce', coceira: 'coceira', refluxo: 'refluxo', digestao: 'digestão', energia: 'energia', ansiedade: 'ansiedade', lingua: 'língua ao acordar' };
+
+function resumoDiario(conteudo) {
+  const nomes = (conteudo.diario?.itens || [])
+    .map(i => (i.id === 'ansiedade' && /estresse/i.test(i.pergunta) ? 'estresse' : NOMES_DIARIO[i.id])).filter(Boolean);
+  if (!nomes.length) return 'Algumas perguntas rápidas sobre o seu dia.';
+  const texto = nomes.length > 1 ? `${nomes.slice(0, -1).join(', ')} e ${nomes.at(-1)}` : nomes[0];
+  return `${texto[0].toUpperCase()}${texto.slice(1)}.`;
+}
+
+function cartaoDiario(hoje, conteudo) {
   const diaHoje = store.dia(hoje);
   const diaOntem = store.dia(somarDias(hoje, -1));
   return `
@@ -17,7 +28,7 @@ function cartaoDiario(hoje) {
       <h3 style="margin-top:0">Diário de 30 segundos</h3>
       ${diaHoje.diario
         ? `<p class="feito-ok">Diário de hoje preenchido</p><a class="botao secundario" href="#/diario">Ver ou mudar</a>`
-        : `<p class="rotulo">Sono, vontade de doce, digestão, energia, ansiedade e língua ao acordar.</p>
+        : `<p class="rotulo">${resumoDiario(conteudo)}</p>
            <a class="botao" href="#/diario">Preencher o diário de hoje</a>`}
       ${diaOntem.diario ? '' : `<a class="botao secundario" href="#/diario?dia=ontem" style="margin-top:10px">Esqueceu ontem? Preencher o de ontem</a>`}
     </section>`;
@@ -125,7 +136,7 @@ export function telaEvolucao(conteudo, parametros) {
 
   return `
     <h1>Minha evolução</h1>
-    ${cartaoDiario(hoje)}
+    ${cartaoDiario(hoje, conteudo)}
 
     <div class="abas" style="grid-template-columns:1fr 1fr">
       <a href="#/evolucao"${dias === 7 ? ' aria-current="page"' : ''}>Últimos 7 dias</a>

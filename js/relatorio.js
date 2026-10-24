@@ -257,10 +257,12 @@ export function gerarMapa(conteudo) {
   p(m.vikriti.titulo, { fonte: 'negrito' }); m.vikriti.paragrafos.forEach(t => p(t)); lista(m.vikriti.comoAparece); p(m.vikriti.fechamento);
   p(m.agni.titulo, { fonte: 'negrito' }); m.agni.paragrafos.forEach(t => p(t));
 
-  f.titulo('Sua relação com o doce');
-  p(m.doce.introducao); lista(m.doce.porQue); p(m.doce.conclusao);
-  m.doce.caminho.forEach((c, i) => p(`${i + 1}. ${c.titulo}: ${c.texto}`));
-  p('Sobre emagrecer', { fonte: 'negrito' }); p(m.doce.emagrecer);
+  if (m.doce) {
+    f.titulo(m.doce.titulo || 'Sua relação com o doce');
+    p(m.doce.introducao); lista(m.doce.porQue); p(m.doce.conclusao);
+    m.doce.caminho.forEach((c, i) => p(`${i + 1}. ${c.titulo}: ${c.texto}`));
+    if (m.doce.emagrecer) { p('Sobre emagrecer', { fonte: 'negrito' }); p(m.doce.emagrecer); }
+  }
 
   f.titulo('Por que o seu plano alimentar foi pensado assim');
   p(m.planoPorque.introducao);

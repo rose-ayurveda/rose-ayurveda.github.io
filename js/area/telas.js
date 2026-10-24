@@ -127,7 +127,13 @@ function telaNova() {
       </label>
       <p class="rotulo">O modelo traz o conteúdo inicial daquele dosha. Depois você personaliza tudo: o teste de doshas, o momento atual, a rotina, o Quadro…</p>
       <button class="botao" type="submit">Criar e começar a editar</button>
-    </form>`;
+    </form>
+    <section class="cartao suave">
+      <h3 style="margin-top:0">Ou adicionar de um arquivo</h3>
+      <p class="rotulo">Use quando o acompanhamento já foi preparado num arquivo (por exemplo, a partir do Mapa Ayurvédico da cliente). As outras clientes continuam como estão.</p>
+      <button type="button" class="botao secundario" id="importar-cliente">Adicionar de um arquivo</button>
+      <p class="rotulo" id="aviso-importar" role="status"></p>
+    </section>`;
 }
 
 function ligarNova(raiz) {
@@ -136,6 +142,22 @@ function ligarNova(raiz) {
     const dados = Object.fromEntries(new FormData(evento.target));
     const id = area.idNovo(dados.nome);
     const conteudo = criarModelo(dados.modelo, { id, nome: dados.nome, primeiroNome: dados.primeiroNome, dataConsulta: dados.dataConsulta || null });
+    area.salvarCliente({ id, conteudo, enviado: null, envios: [], criadaEm: new Date().toISOString() });
+    location.hash = `#/rose/cliente/${id}`;
+  });
+  raiz.querySelector('#importar-cliente').addEventListener('click', async () => {
+    const aviso = raiz.querySelector('#aviso-importar');
+    const texto = await abrirArquivo();
+    if (!texto) return;
+    let arquivo;
+    try { arquivo = JSON.parse(texto); } catch { arquivo = null; }
+    const conteudo = arquivo?.tipo === 'rose-ayurveda-cliente' ? arquivo.conteudo : null;
+    if (!conteudo?.cliente?.nome || !conteudo.mapa) {
+      aviso.textContent = 'Este arquivo não é o acompanhamento de uma cliente.';
+      return;
+    }
+    const id = area.idNovo(conteudo.cliente.nome);
+    conteudo.cliente.id = id;
     area.salvarCliente({ id, conteudo, enviado: null, envios: [], criadaEm: new Date().toISOString() });
     location.hash = `#/rose/cliente/${id}`;
   });

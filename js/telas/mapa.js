@@ -60,12 +60,15 @@ export function telaMapa(c) {
   partes.push(secao('Seu fogo digestivo',
     `<h3>${esc(m.agni.titulo)}</h3>${paragrafos(m.agni.paragrafos)}`));
 
-  partes.push(secao('Sua relação com o doce',
-    `<p class="texto-longo">${rico(m.doce.introducao)}</p>
-     <h3>Por que o doce chama tanto você</h3>${lista(m.doce.porQue)}
-     <p class="texto-longo">${rico(m.doce.conclusao)}</p>
-     <h3>O caminho: nutrir para que a vontade diminua</h3>${blocos(m.doce.caminho)}
-     <h3>Sobre emagrecer</h3><p class="texto-longo">${rico(m.doce.emagrecer)}</p>`));
+  // Seção do tema principal da cliente (para a Roberta, o doce; os títulos podem mudar).
+  if (m.doce) {
+    partes.push(secao(m.doce.titulo || 'Sua relação com o doce',
+      `<p class="texto-longo">${rico(m.doce.introducao)}</p>
+       <h3>${esc(m.doce.tituloPorQue || 'Por que o doce chama tanto você')}</h3>${lista(m.doce.porQue)}
+       <p class="texto-longo">${rico(m.doce.conclusao)}</p>
+       <h3>${esc(m.doce.tituloCaminho || 'O caminho: nutrir para que a vontade diminua')}</h3>${blocos(m.doce.caminho)}
+       ${m.doce.emagrecer ? `<h3>Sobre emagrecer</h3><p class="texto-longo">${rico(m.doce.emagrecer)}</p>` : ''}`));
+  }
 
   partes.push(secao('Por que o seu plano alimentar foi pensado assim',
     `<p class="texto-longo">${rico(m.planoPorque.introducao)}</p>
@@ -101,7 +104,7 @@ export function telaMapa(c) {
 
   partes.push(secao('Como acompanhar a sua evolução',
     `<h3>Sinais de que está funcionando (${esc(m.sinais.funcionandoPrazo)})</h3>${lista(m.sinais.funcionando)}
-     <h3>Sinais de que Vata ou Pitta estão subindo de novo</h3>${lista(m.sinais.desequilibrio)}
+     <h3>${esc(m.sinais.tituloDesequilibrio || "Sinais de que Vata ou Pitta estão subindo de novo")}</h3>${lista(m.sinais.desequilibrio)}
      <p class="texto-longo">${rico(m.sinais.desequilibrioConclusao)}</p>`));
 
   partes.push(secao('Próximo encontro',

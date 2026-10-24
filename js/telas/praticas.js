@@ -223,7 +223,7 @@ function abaChas(conteudo) {
             <p class="rotulo">${esc(c.quando)}</p>
             <p><strong>Por que para você:</strong> ${rico(c.porQue)}</p>
             <p><strong>Preparo:</strong> ${rico(preparo.texto)}</p>
-            ${cronometroHTML(`cha-${c.id}`, PREPAROS[c.preparo])}
+            ${cronometroHTML(`cha-${c.id}`, PREPAROS[c.preparo] || [{ nome: `${preparo.minutos} min`, minutos: preparo.minutos }])}
           </div>
         </details>`;
     }).join('')}`;

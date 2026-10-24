@@ -32,7 +32,7 @@ const itensQuadro = c => (c.quadro?.periodos || []).flatMap(p => p.itens.map(i =
 const periodosQuadro = c => (c.quadro?.periodos || []).map(p => ({ valor: p.id, nome: p.nome }));
 const audios = () => Object.entries(catalogoCompleto()).map(([id, a]) => ({ valor: id, nome: a.nome }));
 
-const blocoTexto = (campo, rotulo) => ({ tipo: 'area', campo, rotulo, rico: true, linhas: 3 });
+const blocoTexto = (campo, rotulo, dica) => ({ tipo: 'area', campo, rotulo, rico: true, linhas: 3, ...(dica ? { dica } : {}) });
 
 export const SECOES = [
   {
@@ -76,18 +76,21 @@ export const SECOES = [
     ],
   },
   {
-    id: 'mapa-2', nome: 'Mapa: doce e alimentação',
+    id: 'mapa-2', nome: 'Mapa: tema principal e alimentação',
     campos: [
       {
-        tipo: 'grupo', campo: 'mapa.doce', rotulo: 'Relação com o doce', campos: [
+        tipo: 'grupo', campo: 'mapa.doce', rotulo: 'Tema principal (relação com o doce)', campos: [
+          { tipo: 'texto', campo: 'titulo', rotulo: 'Título da seção', dica: 'Vazio = “Sua relação com o doce”.' },
           blocoTexto('introducao', 'Introdução'),
-          { tipo: 'linhas', campo: 'porQue', rotulo: 'Por que o doce chama tanto' },
+          { tipo: 'texto', campo: 'tituloPorQue', rotulo: 'Subtítulo do “por quê”', dica: 'Vazio = “Por que o doce chama tanto você”.' },
+          { tipo: 'linhas', campo: 'porQue', rotulo: 'Por quê' },
           blocoTexto('conclusao', 'Conclusão'),
+          { tipo: 'texto', campo: 'tituloCaminho', rotulo: 'Subtítulo do caminho', dica: 'Vazio = “O caminho: nutrir para que a vontade diminua”.' },
           {
             tipo: 'lista', campo: 'caminho', rotulo: 'O caminho', adicionar: 'Novo passo', titulo: p => p.titulo || 'Passo',
             novo: () => ({ titulo: '', texto: '' }), item: [{ tipo: 'texto', campo: 'titulo', rotulo: 'Título' }, blocoTexto('texto', 'Texto')],
           },
-          blocoTexto('emagrecer', 'Sobre emagrecer'),
+          blocoTexto('emagrecer', 'Sobre emagrecer', 'Vazio = a parte não aparece.'),
         ],
       },
       {
@@ -165,6 +168,7 @@ export const SECOES = [
         tipo: 'grupo', campo: 'mapa.sinais', rotulo: 'Sinais', campos: [
           { tipo: 'texto', campo: 'funcionandoPrazo', rotulo: 'Prazo para notar' },
           { tipo: 'linhas', campo: 'funcionando', rotulo: 'Sinais de que está funcionando' },
+          { tipo: 'texto', campo: 'tituloDesequilibrio', rotulo: 'Subtítulo dos sinais de desequilíbrio', dica: 'Vazio = “Sinais de que Vata ou Pitta estão subindo de novo”.' },
           { tipo: 'linhas', campo: 'desequilibrio', rotulo: 'Sinais de desequilíbrio' },
           blocoTexto('desequilibrioConclusao', 'Conclusão'),
         ],
