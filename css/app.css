@@ -75,6 +75,9 @@ button { font: inherit; color: inherit; }
   background: transparent; border: 0; color: var(--marca-escura); cursor: pointer;
 }
 .botao-icone svg { width: 24px; height: 24px; }
+.botao-icone[hidden] { display: none; }
+.topo-esquerda { display: flex; align-items: center; gap: 2px; min-height: 44px; }
+#botao-voltar { margin-left: -10px; }
 
 main {
   max-width: 640px; margin: 0 auto;

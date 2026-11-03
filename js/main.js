@@ -64,6 +64,24 @@ function endereco() {
   return { rota: rota || 'agora', parametros: new URLSearchParams(busca || '') };
 }
 
+// Seta de voltar no topo: o app instalado no iPhone não tem o botão do navegador.
+// A pilha guarda as telas por onde ela passou; o voltar do Android também passa por aqui.
+const pilha = [location.hash];
+
+function anotarTela() {
+  if (pilha.at(-2) === location.hash) pilha.pop();
+  else if (pilha.at(-1) !== location.hash) pilha.push(location.hash);
+}
+
+function voltarTela() {
+  if (pilha.length > 1) history.back();
+  else location.hash = '#/agora';
+}
+
+function desenharVoltar(rota) {
+  document.getElementById('botao-voltar').hidden = rota === 'agora' || rota === 'rose' || rota.startsWith('rose/') || rota.startsWith('receber/');
+}
+
 function desenharMenu(rota, visivel) {
   menu.hidden = !visivel;
   menu.innerHTML = MENU.map(m => {
@@ -78,6 +96,7 @@ function desenhar({ manterRolagem = false } = {}) {
   pararCronometros = () => {};
   const rolagem = window.scrollY;
   const { rota, parametros } = endereco();
+  desenharVoltar(rota);
 
   // Área da Rose (protegida por senha).
   if (rota.startsWith('rose/ver/') && area.areaAberta()) {
@@ -193,10 +212,12 @@ async function carregarTeste() {
 
 document.getElementById('marca').innerHTML = `${marcaLotus()}<span>Rosemary Sampaio</span>`;
 document.getElementById('botao-ajustes').innerHTML = icones.ajustes;
+document.getElementById('botao-voltar').innerHTML = icones.voltar;
+document.getElementById('botao-voltar').addEventListener('click', voltarTela);
 
 aplicarAjustes(store.ajustes());
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => aplicarAjustes(store.ajustes()));
-window.addEventListener('hashchange', () => desenhar());
+window.addEventListener('hashchange', () => { anotarTela(); desenhar(); });
 carregarCatalogo().then(() => desenhar());
 
 if (ehAppAndroid()) {

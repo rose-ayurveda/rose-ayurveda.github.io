@@ -75,7 +75,8 @@ export function telaApoio(conteudo) {
     case 'escolha':
       corpo = `
         <p class="texto-longo">${rico(a.pausa.texto)}</p>
-        ${a.pausa.escolhas.map(e => `<button type="button" class="botao secundario" data-escolha="${e.id}">${esc(e.texto)}</button>`).join('')}`;
+        ${a.pausa.escolhas.filter(e => !e.para || e.para.includes(estado.resposta)).map(e => `<button type="button" class="botao secundario" data-escolha="${e.id}">${esc(e.texto)}</button>`).join('')}
+        <button type="button" class="link" data-etapa="pergunta">Voltar à pergunta anterior</button>`;
       break;
 
     case 'pausa': {
@@ -89,7 +90,8 @@ export function telaApoio(conteudo) {
         <h3>${esc(escolha.texto)}</h3>
         ${escolha.audio && audio(escolha.audio) ? playerHTML(audio(escolha.audio), { compacto: true }) : ''}
         ${lista(escolha.passos, true)}
-        <button type="button" class="botao secundario" data-final>Encerrar a pausa agora</button>`;
+        <button type="button" class="botao secundario" data-final>Encerrar a pausa agora</button>
+        <button type="button" class="link" data-etapa="escolha">Escolher outra opção</button>`;
       break;
     }
 
@@ -144,6 +146,10 @@ export function ligarApoio(raiz, conteudo, redesenhar) {
   raiz.querySelectorAll('[data-escolha]').forEach(b => b.addEventListener('click', () => {
     tocarSino(0.2);
     ir({ ...estado, etapa: 'pausa', escolha: b.dataset.escolha, fim: Date.now() + a.pausa.minutos * 60_000 });
+  }));
+
+  raiz.querySelectorAll('[data-etapa]').forEach(b => b.addEventListener('click', () => {
+    ir({ ...estado, etapa: b.dataset.etapa });
   }));
 
   raiz.querySelectorAll('[data-final]').forEach(b => b.addEventListener('click', () => ir({ ...estado, etapa: 'final' })));

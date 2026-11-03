@@ -30,7 +30,7 @@ export function mudancas(antigo, novo) {
 
   const secoes = {
     prioridades: 'as prioridades', prakriti: 'a constituição', vikriti: 'o momento atual',
-    doce: 'a relação com o doce', refeicoes: 'o ajuste das refeições', relogio: 'o relógio ayurvédico',
+    doce: 'a alimentação', refeicoes: 'o ajuste das refeições', relogio: 'o relógio ayurvédico',
     praticas: 'o passo a passo das práticas', chas: 'os chás', estacao: 'os cuidados da estação',
     evitar: 'o que evitar', sinais: 'os sinais a observar',
   };

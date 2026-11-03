@@ -79,7 +79,7 @@ export const SECOES = [
     id: 'mapa-2', nome: 'Mapa: tema principal e alimentação',
     campos: [
       {
-        tipo: 'grupo', campo: 'mapa.doce', rotulo: 'Tema principal (relação com o doce)', campos: [
+        tipo: 'grupo', campo: 'mapa.doce', rotulo: 'Tema principal', campos: [
           { tipo: 'texto', campo: 'titulo', rotulo: 'Título da seção', dica: 'Vazio = “Sua relação com o doce”.' },
           blocoTexto('introducao', 'Introdução'),
           { tipo: 'texto', campo: 'tituloPorQue', rotulo: 'Subtítulo do “por quê”', dica: 'Vazio = “Por que o doce chama tanto você”.' },

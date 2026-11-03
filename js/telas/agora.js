@@ -92,4 +92,8 @@ export function telaAgora(conteudo) {
 export function ligarAgora(raiz, conteudo, redesenhar) {
   ligarRotina(raiz, conteudo, redesenhar);
   ligarLembretes(raiz, conteudo, redesenhar);
+  // O botão de apoio começa sempre da pergunta, a não ser que haja uma pausa em andamento.
+  raiz.querySelector('.botao-apoio')?.addEventListener('click', () => {
+    if (store.apoioAtual()?.etapa !== 'pausa') store.salvarApoioAtual(null);
+  });
 }

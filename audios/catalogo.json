@@ -86,7 +86,7 @@
   },
   "abhyanga-completa": {
     "nome": "Abhyanga — automassagem completa",
-    "quando": "De manhã, antes do banho",
+    "quando": "Antes do banho",
     "arquivo": "audios/abhyanga-completa.mp3",
     "segundos": 358,
     "transcricao": [
@@ -109,9 +109,9 @@
   },
   "abhyanga-pes": {
     "nome": "Abhyanga — só os pés",
-    "quando": "Dias corridos, antes de dormir",
+    "quando": "Para aquecer os pés e acalmar",
     "arquivo": "audios/abhyanga-pes.mp3",
-    "segundos": 123,
+    "segundos": 122,
     "transcricao": [
       "Massagem nos pés com óleo morno.",
       "Sente-se confortável, com um pé apoiado na outra perna.",
@@ -120,7 +120,7 @@
       "Agora entre os dedos, um por um.",
       "Troque de pé. A sola... e entre os dedos.",
       "Calce meias de algodão.",
-      "Seus pés estão aquecidos. O corpo já entende que é hora de descansar."
+      "Seus pés estão aquecidos. Seu corpo agradece este cuidado."
     ]
   },
   "pausa-do-doce": {
