@@ -32,7 +32,7 @@ function pratica(p) {
   html += `<p class="texto-longo"><strong>Por que para você:</strong> ${rico(p.porQue)}</p>`;
   if (p.detalhes) html += lista(p.detalhes);
   if (p.passos) html += `<p><strong>Como fazer</strong></p>${lista(p.passos, true)}`;
-  for (const s of p.subpraticas || []) html += `<p><strong>${esc(s.nome)}</strong></p>${lista(s.passos, true)}`;
+  for (const s of p.subpraticas || []) html += `<p><strong>${esc(s.nome)}</strong></p>${s.nota ? `<p class="texto-longo">${rico(s.nota)}</p>` : ''}${lista(s.passos, true)}`;
   if (p.cuidados) html += lista(p.cuidados);
   if (p.versaoCurta) html += `<p class="texto-longo">${rico(p.versaoCurta)}</p>`;
   return html + '</div>';
@@ -70,12 +70,14 @@ export function telaMapa(c) {
        ${m.doce.emagrecer ? `<h3>Sobre emagrecer</h3><p class="texto-longo">${rico(m.doce.emagrecer)}</p>` : ''}`));
   }
 
-  partes.push(secao('Por que o seu plano alimentar foi pensado assim',
-    `<p class="texto-longo">${rico(m.planoPorque.introducao)}</p>
-     ${m.planoPorque.itens.map(i => `<div class="par"><h3>${esc(i.item)}</h3><p class="texto-longo">${rico(i.motivo)}</p></div>`).join('')}`));
+  if (m.planoPorque?.itens?.length) {
+    partes.push(secao('Por que o seu plano alimentar foi pensado assim',
+      `<p class="texto-longo">${rico(m.planoPorque.introducao)}</p>
+       ${m.planoPorque.itens.map(i => `<div class="par"><h3>${esc(i.item)}</h3><p class="texto-longo">${rico(i.motivo)}</p></div>`).join('')}`));
+  }
 
   partes.push(secao('Como preparar e temperar cada refeição',
-    `<p class="texto-longo">Use junto com o plano alimentar. As opções continuam as mesmas; aqui está o ajuste ayurvédico de cada uma.</p>
+    `<p class="texto-longo">${rico(m.refeicoesIntro || 'Use junto com o plano alimentar. As opções continuam as mesmas; aqui está o ajuste ayurvédico de cada uma.')}</p>
      ${m.refeicoes.map(r => `<div class="par"><h3>${esc(r.nome)} <span class="rotulo">· ${esc(r.horario)}</span></h3><p class="texto-longo">${rico(r.ajuste)}</p></div>`).join('')}`));
 
   partes.push(secao('Seu dia pelo relógio ayurvédico',

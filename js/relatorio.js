@@ -264,9 +264,11 @@ export function gerarMapa(conteudo) {
     if (m.doce.emagrecer) { p('Sobre emagrecer', { fonte: 'negrito' }); p(m.doce.emagrecer); }
   }
 
-  f.titulo('Por que o seu plano alimentar foi pensado assim');
-  p(m.planoPorque.introducao);
-  m.planoPorque.itens.forEach(x => { p(x.item, { fonte: 'negrito', depois: 0 }); p(x.motivo, { recuo: 10 }); });
+  if (m.planoPorque?.itens?.length) {
+    f.titulo('Por que o seu plano alimentar foi pensado assim');
+    p(m.planoPorque.introducao);
+    m.planoPorque.itens.forEach(x => { p(x.item, { fonte: 'negrito', depois: 0 }); p(x.motivo, { recuo: 10 }); });
+  }
 
   f.titulo('Como preparar e temperar cada refeição');
   m.refeicoes.forEach(r => { p(`${r.nome} · ${r.horario}`, { fonte: 'negrito', depois: 0 }); p(r.ajuste, { recuo: 10 }); });
@@ -286,7 +288,7 @@ export function gerarMapa(conteudo) {
     p(`Por que para você: ${x.porQue}`, { recuo: 10 });
     if (x.detalhes) lista(x.detalhes);
     if (x.passos) lista(x.passos, true);
-    for (const s of x.subpraticas || []) { p(s.nome, { fonte: 'negrito', recuo: 10, depois: 0 }); lista(s.passos, true); }
+    for (const s of x.subpraticas || []) { p(s.nome, { fonte: 'negrito', recuo: 10, depois: 0 }); if (s.nota) p(s.nota, { recuo: 10 }); lista(s.passos, true); }
     if (x.cuidados) lista(x.cuidados);
     if (x.versaoCurta) p(x.versaoCurta, { recuo: 10 });
   }

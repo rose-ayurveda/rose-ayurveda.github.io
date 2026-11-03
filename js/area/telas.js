@@ -156,6 +156,17 @@ function ligarNova(raiz) {
       aviso.textContent = 'Este arquivo não é o acompanhamento de uma cliente.';
       return;
     }
+    // Cliente que já está na área: atualiza o conteúdo e mantém o histórico de envios.
+    const existente = area.clientes().find(c => c.conteudo.cliente.nome === conteudo.cliente.nome);
+    if (existente) {
+      if (!confirm(`${conteudo.cliente.nome} já está na sua área. Atualizar com este arquivo? O que você mudou nela pela tela Editar será substituído.`)) return;
+      conteudo.cliente.id = existente.id;
+      conteudo.versao = existente.conteudo.versao;
+      conteudo.atualizadoEm = existente.conteudo.atualizadoEm;
+      area.salvarCliente({ ...existente, conteudo });
+      location.hash = `#/rose/cliente/${existente.id}`;
+      return;
+    }
     const id = area.idNovo(conteudo.cliente.nome);
     conteudo.cliente.id = id;
     area.salvarCliente({ id, conteudo, enviado: null, envios: [], criadaEm: new Date().toISOString() });

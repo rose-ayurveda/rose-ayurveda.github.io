@@ -14,7 +14,7 @@ const NOMES_DIARIO = { sono: 'sono', doce: 'vontade de doce', coceira: 'coceira'
 
 function resumoDiario(conteudo) {
   const nomes = (conteudo.diario?.itens || [])
-    .map(i => (i.id === 'ansiedade' && /estresse/i.test(i.pergunta) ? 'estresse' : NOMES_DIARIO[i.id])).filter(Boolean);
+    .map(i => (i.nomeCurto || (i.id === 'ansiedade' && /estresse/i.test(i.pergunta) ? 'estresse' : NOMES_DIARIO[i.id]))).filter(Boolean);
   if (!nomes.length) return 'Algumas perguntas rápidas sobre o seu dia.';
   const texto = nomes.length > 1 ? `${nomes.slice(0, -1).join(', ')} e ${nomes.at(-1)}` : nomes[0];
   return `${texto[0].toUpperCase()}${texto.slice(1)}.`;

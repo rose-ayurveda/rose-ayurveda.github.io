@@ -127,7 +127,7 @@ function passoAPasso(conteudo, item) {
   let html = '';
   if (pratica) {
     if (pratica.passos) html += lista(pratica.passos, true);
-    for (const s of pratica.subpraticas || []) html += `<p><strong>${esc(s.nome)}</strong></p>${lista(s.passos, true)}`;
+    for (const s of pratica.subpraticas || []) html += `<p><strong>${esc(s.nome)}</strong></p>${s.nota ? `<p class="texto-longo">${rico(s.nota)}</p>` : ''}${lista(s.passos, true)}`;
     if (pratica.cuidados) html += lista(pratica.cuidados);
   }
   if (cha) {

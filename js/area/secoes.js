@@ -144,7 +144,7 @@ export const SECOES = [
           { tipo: 'linhas', campo: 'passos', rotulo: 'Passo a passo' },
           {
             tipo: 'lista', campo: 'subpraticas', rotulo: 'Variações (ex.: tipos de respiração)', adicionar: 'Nova variação', titulo: s => s.nome || 'Variação',
-            novo: () => ({ nome: '', passos: [] }), item: [{ tipo: 'texto', campo: 'nome', rotulo: 'Nome' }, { tipo: 'linhas', campo: 'passos', rotulo: 'Passos' }],
+            novo: () => ({ nome: '', passos: [] }), item: [{ tipo: 'texto', campo: 'nome', rotulo: 'Nome' }, { tipo: 'texto', campo: 'nota', rotulo: 'Frase embaixo do nome (opcional)' }, { tipo: 'linhas', campo: 'passos', rotulo: 'Passos' }],
           },
           { tipo: 'linhas', campo: 'cuidados', rotulo: 'Cuidados (opcional)' },
           blocoTexto('versaoCurta', 'Versão para dias corridos (opcional)'),
