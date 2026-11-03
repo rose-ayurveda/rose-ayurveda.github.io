@@ -13,7 +13,7 @@ const COR = {
 };
 const DOSHA = { vata: COR.vata, pitta: COR.pitta, kapha: COR.kapha };
 
-const limpo = texto => String(texto || '').replace(/\*\*/g, '');
+const limpo = texto => String(texto || '').replace(/\*\*/g, '').replace(/\*([^*\s][^*]*?)\*/g, '$1');
 const virgula = v => v.toFixed(1).replace('.', ',');
 const dataCurta = chave => { const p = partes(chave); return `${String(p.dia).padStart(2, '0')}/${String(p.mes).padStart(2, '0')}/${p.ano}`; };
 const diaMes = chave => { const p = partes(chave); return `${p.dia}/${p.mes}`; };

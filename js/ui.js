@@ -6,9 +6,9 @@ export function esc(texto) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-// Texto com **negrito** (o único formato que o conteúdo usa).
+// Texto com **negrito** e *itálico* (os formatos que o conteúdo usa).
 export function rico(texto) {
-  return esc(texto).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  return esc(texto).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*([^*\s][^*]*?)\*/g, '<em>$1</em>');
 }
 
 export function paragrafos(lista, classe = 'texto-longo') {
@@ -26,7 +26,7 @@ export function secao(titulo, conteudo, aberta = false) {
 }
 
 // Número da versão do app, mostrado em Ajustes (o mesmo de VERSAO em sw.js).
-export const VERSAO_APP = 20;
+export const VERSAO_APP = 21;
 
 export const AVISO_LEGAL = 'As orientações são terapêuticas e de estilo de vida, segundo os princípios do Ayurveda, e não substituem diagnóstico ou tratamento médico.';
 
