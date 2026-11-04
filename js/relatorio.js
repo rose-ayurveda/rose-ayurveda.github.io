@@ -13,7 +13,7 @@ const COR = {
 };
 const DOSHA = { vata: COR.vata, pitta: COR.pitta, kapha: COR.kapha };
 
-const limpo = texto => String(texto || '').replace(/\*\*/g, '').replace(/\*([^*\s][^*]*?)\*/g, '$1');
+const limpo = texto => String(texto || '').replace(/\*\*/g, '').replace(/\*([^*\s][^*]*?)\*/g, '$1').replace(/⅓/g, '1/3'); // a fonte do PDF não tem ⅓
 const virgula = v => v.toFixed(1).replace('.', ',');
 const dataCurta = chave => { const p = partes(chave); return `${String(p.dia).padStart(2, '0')}/${String(p.mes).padStart(2, '0')}/${p.ano}`; };
 const diaMes = chave => { const p = partes(chave); return `${p.dia}/${p.mes}`; };
@@ -298,13 +298,24 @@ export function gerarMapa(conteudo) {
   m.chas.itens.forEach(c => p(`${c.nome} — ${c.quando}. ${c.porQue}`, { recuo: 10, depois: 3 }));
   Object.values(m.chas.preparos).forEach(x => p(`${x.nome}: ${x.texto}`));
 
+  if (conteudo.receitas?.length) {
+    f.titulo('Receitas');
+    for (const r of conteudo.receitas) {
+      p(r.nome, { fonte: 'negrito', depois: 0 });
+      p(`${r.quando} ${r.porQue}`, { recuo: 10 });
+      p('Ingredientes', { fonte: 'negrito', recuo: 10, depois: 0 }); lista(r.ingredientes);
+      p('Preparo', { fonte: 'negrito', recuo: 10, depois: 0 }); lista(r.preparo, true);
+      if (r.nota) p(r.nota, { recuo: 10 });
+    }
+  }
+
   f.titulo('A estação e o que tira você do eixo');
   p(m.estacao.introducao); lista(m.estacao.ajustes); p(m.estacao.termometro);
   p('O que evitar neste momento', { fonte: 'negrito' }); lista(m.evitar);
 
   f.titulo('Como acompanhar a sua evolução');
   p(`Sinais de que está funcionando (${m.sinais.funcionandoPrazo})`, { fonte: 'negrito' }); lista(m.sinais.funcionando);
-  p('Sinais de que Vata ou Pitta estão subindo de novo', { fonte: 'negrito' }); lista(m.sinais.desequilibrio);
+  p(m.sinais.tituloDesequilibrio || 'Sinais de que Vata ou Pitta estão subindo de novo', { fonte: 'negrito' }); lista(m.sinais.desequilibrio);
   p(m.sinais.desequilibrioConclusao);
 
   f.titulo('Próximo encontro');
