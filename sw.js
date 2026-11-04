@@ -1,6 +1,6 @@
 // Guarda o app e os áudios no celular para funcionar sem internet.
 // Ao publicar uma nova versão, aumente o número abaixo E o de VERSAO_APP em js/ui.js.
-const VERSAO = 'rose-v22';
+const VERSAO = 'rose-v23';
 const ARQUIVOS = [
   './',
   'index.html',
@@ -63,6 +63,11 @@ const ARQUIVOS = [
   'audios/pausa-do-doce.mp3',
   'audios/alimentacao-consciente.mp3',
   'audios/viparita-karani.mp3',
+  'audios/bhramari-sentada.mp3',
+  'audios/abhyanga-subindo.mp3',
+  'audios/padabhyanga-coco.mp3',
+  'audios/meditacao-respiracao.mp3',
+  'audios/relaxamento-corpo.mp3',
 ];
 
 // "reload": busca cada arquivo direto do site, nunca uma cópia velha guardada pelo navegador
