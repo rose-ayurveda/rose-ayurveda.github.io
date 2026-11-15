@@ -1,7 +1,7 @@
 // Práticas: a rotina do dia com lembretes, os chás com cronômetro e as receitas.
 import { esc, rico, lista, avisoLegal } from '../ui.js';
 import { store } from '../store.js';
-import { chaveDoDia } from '../datas.js';
+import { chaveDoDia, somarDias, dataPorExtenso } from '../datas.js';
 import { estado, horarioEfetivo, contagem, marcarFeito, pularHoje, desfazerPulo, adiar } from '../rotina.js';
 import { cronometroHTML, ligarCronometros } from '../cronometro.js';
 import { assinaturaDosLembretes, gerarCalendario, abrirCalendario, abrirCalendarioComoPagina, ehIPhone } from '../lembretes.js';
@@ -140,21 +140,22 @@ function passoAPasso(conteudo, item) {
   return html;
 }
 
-export function cartaoPratica(conteudo, item, dia, { compacto = false } = {}) {
+// ontem: só "Feito" e "desfazer" (não faz sentido adiar ou pular um dia que já passou).
+export function cartaoPratica(conteudo, item, dia, { compacto = false, ontem = false } = {}) {
   const situacao = estado(item, dia);
   const hora = horarioEfetivo(item, dia);
   const adiado = hora !== item.horario;
   const acoes = situacao === 'feito'
     ? `<p class="feito-ok">Feito <button type="button" class="link" data-acao="desfazer" data-rotina="${item.id}">desfazer</button></p>`
     : situacao === 'pulado'
-      ? `<p class="rotulo">Hoje não — tudo bem. <button type="button" class="link" data-acao="despular" data-rotina="${item.id}">voltar</button></p>`
+      ? `<p class="rotulo">${ontem ? 'Ontem não — tudo bem.' : 'Hoje não — tudo bem.'} <button type="button" class="link" data-acao="despular" data-rotina="${item.id}">voltar</button></p>`
       : `<div class="acoes-pratica">
            <button type="button" class="botao" data-acao="feito" data-rotina="${item.id}">Feito</button>
-           ${compacto ? '' : `
+           ${compacto || ontem ? '' : `
            <button type="button" class="botao secundario" data-acao="depois" data-rotina="${item.id}">Fazer depois</button>
            <button type="button" class="botao secundario" data-acao="pular" data-rotina="${item.id}">Pular hoje</button>`}
          </div>
-         ${!compacto && item.alternativa ? `<button type="button" class="botao secundario" style="margin-top:10px" data-acao="alternativa" data-rotina="${item.id}">${esc(item.alternativa.nome)}</button>` : ''}`;
+         ${!compacto && !ontem && item.alternativa ? `<button type="button" class="botao secundario" style="margin-top:10px" data-acao="alternativa" data-rotina="${item.id}">${esc(item.alternativa.nome)}</button>` : ''}`;
 
   return `
     <article class="cartao pratica ${situacao}">
@@ -171,9 +172,9 @@ export function cartaoPratica(conteudo, item, dia, { compacto = false } = {}) {
     </article>`;
 }
 
-export function ligarRotina(raiz, conteudo, redesenhar) {
+// data: o dia que está na tela (hoje ou ontem).
+export function ligarRotina(raiz, conteudo, redesenhar, data = chaveDoDia(conteudo.cliente.fusoHorario)) {
   const fuso = conteudo.cliente.fusoHorario;
-  const data = chaveDoDia(fuso);
   raiz.querySelectorAll('[data-rotina]').forEach(b => b.addEventListener('click', () => {
     const item = conteudo.rotina.find(i => i.id === b.dataset.rotina);
     switch (b.dataset.acao) {
@@ -188,14 +189,28 @@ export function ligarRotina(raiz, conteudo, redesenhar) {
   }));
 }
 
-function abaRotina(conteudo) {
-  const dia = store.dia(chaveDoDia(conteudo.cliente.fusoHorario));
+// Hoje ou ontem (#/praticas?aba=rotina&dia=ontem), para marcar o que ficou esquecido (Rose, 15/11/2026).
+function diaDaRotina(conteudo, parametros) {
+  const hoje = chaveDoDia(conteudo.cliente.fusoHorario);
+  const ontem = parametros?.get('dia') === 'ontem';
+  return { data: ontem ? somarDias(hoje, -1) : hoje, ontem };
+}
+
+function abaRotina(conteudo, parametros) {
+  const { data, ontem } = diaDaRotina(conteudo, parametros);
+  const dia = store.dia(data);
   const { feitas, total } = contagem(conteudo, dia);
   const itens = [...conteudo.rotina].sort((a, b) => horarioEfetivo(a, dia).localeCompare(horarioEfetivo(b, dia)));
   return `
-    ${cartaoLembretes(conteudo)}
-    <p><strong>${feitas} de ${total}</strong> práticas feitas hoje</p>
-    ${itens.map(i => cartaoPratica(conteudo, i, dia)).join('')}`;
+    <div class="opcoes" style="grid-template-columns:1fr 1fr;margin:0 0 12px" role="group" aria-label="Qual dia marcar">
+      <button type="button" data-ir="#/praticas?aba=rotina" aria-pressed="${!ontem}">Hoje</button>
+      <button type="button" data-ir="#/praticas?aba=rotina&dia=ontem" aria-pressed="${ontem}">Ontem</button>
+    </div>
+    ${ontem
+      ? `<p class="rotulo">Ontem, ${dataPorExtenso(data)}. Marque o que você fez e esqueceu de registrar.</p>`
+      : cartaoLembretes(conteudo)}
+    <p><strong>${feitas} de ${total}</strong> práticas feitas ${ontem ? 'ontem' : 'hoje'}</p>
+    ${itens.map(i => cartaoPratica(conteudo, i, dia, { ontem })).join('')}`;
 }
 
 // ---------- Áudios guiados ----------
@@ -235,14 +250,17 @@ function abaReceitas(conteudo) {
   const receitas = conteudo.receitas || [];
   if (!receitas.length) return '<p class="rotulo">Nenhuma receita ainda.</p>';
   // Uma receita aberta por vez, para a lista inteira continuar à vista.
+  // Foto (opcional): arquivo em site/receitas/, com miniatura no nome e foto grande ao abrir.
   return `<p class="rotulo">${receitas.length} receitas · toque no nome para abrir</p>` + receitas.map(r => `
     <details class="secao" name="receitas">
-      <summary>${esc(r.nome)}</summary>
+      <summary>${r.foto ? `<img class="foto-receita-mini" src="${esc(r.foto)}" alt="" loading="lazy">` : ''}<span>${esc(r.nome)}</span></summary>
       <div class="conteudo">
-        <p class="rotulo">${esc(r.quando)}</p>
-        <p class="texto-longo"><strong>Por que para você:</strong> ${rico(r.porQue)}</p>
+        ${r.foto ? `<img class="foto-receita" src="${esc(r.foto)}" alt="${esc(r.nome)}" loading="lazy">` : ''}
+        ${r.quando ? `<p class="rotulo">${esc(r.quando)}</p>` : ''}
+        ${r.porQue ? `<p class="texto-longo"><strong>Por que para você:</strong> ${rico(r.porQue)}</p>` : ''}
         <p><strong>Ingredientes</strong></p>${lista(r.ingredientes)}
-        <p><strong>Preparo</strong></p>${lista(r.preparo, true)}
+        <p><strong>${esc(r.tituloPreparo || 'Preparo')}</strong></p>${lista(r.preparo, true)}
+        ${(r.dicas || []).map(t => `<p class="texto-longo dica-receita">${rico(t)}</p>`).join('')}
         ${r.nota ? `<p class="rotulo">${rico(r.nota)}</p>` : ''}
       </div>
     </details>`).join('');
@@ -250,7 +268,7 @@ function abaReceitas(conteudo) {
 
 export function telaPraticas(conteudo, parametros) {
   const aba = ABAS.some(a => a.id === parametros.get('aba')) ? parametros.get('aba') : 'rotina';
-  const corpo = { rotina: abaRotina, audios: abaAudios, chas: abaChas, receitas: abaReceitas }[aba](conteudo);
+  const corpo = { rotina: abaRotina, audios: abaAudios, chas: abaChas, receitas: abaReceitas }[aba](conteudo, parametros);
   return `
     <h1>Práticas</h1>
     <nav class="abas" aria-label="Seções das práticas">
@@ -261,9 +279,10 @@ export function telaPraticas(conteudo, parametros) {
   `;
 }
 
-export function ligarPraticas(raiz, conteudo, redesenhar) {
+export function ligarPraticas(raiz, conteudo, redesenhar, parametros) {
   ligarLembretes(raiz, conteudo, redesenhar);
-  ligarRotina(raiz, conteudo, redesenhar);
+  ligarRotina(raiz, conteudo, redesenhar, diaDaRotina(conteudo, parametros).data);
+  raiz.querySelectorAll('[data-ir]').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.ir; }));
   const pararCronometros = ligarCronometros(raiz);
   const pararAudios = ligarPlayers(raiz);
   return () => { pararCronometros(); pararAudios(); };

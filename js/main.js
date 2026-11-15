@@ -162,7 +162,7 @@ function desenhar({ manterRolagem = false } = {}) {
       case 'conquistas': tela.innerHTML = telaConquistas(conteudo); break;
       case 'praticas':
         tela.innerHTML = telaPraticas(conteudo, parametros);
-        pararCronometros = ligarPraticas(tela, conteudo, desenhar);
+        pararCronometros = ligarPraticas(tela, conteudo, desenhar, parametros);
         break;
       case 'evolucao':
         tela.innerHTML = telaEvolucao(conteudo, parametros);
@@ -212,7 +212,7 @@ async function carregarTeste() {
 
 document.getElementById('marca').innerHTML = `${marcaLotus()}<span>Rosemary Sampaio</span>`;
 document.getElementById('botao-ajustes').innerHTML = icones.ajustes;
-document.getElementById('botao-voltar').innerHTML = icones.voltar;
+document.getElementById('botao-voltar').innerHTML = `${icones.voltar}<span>Voltar</span>`;
 document.getElementById('botao-voltar').addEventListener('click', voltarTela);
 
 aplicarAjustes(store.ajustes());

@@ -48,13 +48,7 @@ export function lotus(abertas, { tamanho = '100%', rotulo } = {}) {
   return `<svg viewBox="0 0 200 135" width="${tamanho}" role="img" aria-label="${texto}"><title>${texto}</title>${desenho}</svg>`;
 }
 
-// Pequeno lótus de traço dourado, usado como marca do app.
+// Marca do app: a flor de lótus da Rose (a mesma do app P.R.A.N.A., pedido de 15/11/2026).
 export function marcaLotus() {
-  return `<svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="#B8925A" stroke-width="1.6" stroke-linejoin="round">
-    <path d="M20 31c-3-4-3-12 0-19 3 7 3 15 0 19z"/>
-    <path d="M20 31c-6-2-9-8-9-14 5 2 8 7 9 14z"/>
-    <path d="M20 31c6-2 9-8 9-14-5 2-8 7-9 14z"/>
-    <path d="M20 31c-7 0-12-3-14-8 5-1 10 2 14 8z"/>
-    <path d="M20 31c7 0 12-3 14-8-5-1-10 2-14 8z"/>
-  </svg>`;
+  return '<img class="marca-icone" src="icones/icone-192.png" alt="" aria-hidden="true">';
 }

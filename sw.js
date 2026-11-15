@@ -1,6 +1,6 @@
 // Guarda o app e os áudios no celular para funcionar sem internet.
 // Ao publicar uma nova versão, aumente o número abaixo E o de VERSAO_APP em js/ui.js.
-const VERSAO = 'rose-v25';
+const VERSAO = 'rose-v27';
 const ARQUIVOS = [
   './',
   'index.html',
@@ -50,10 +50,19 @@ const ARQUIVOS = [
   'js/telas/mapa.js',
   'js/telas/ajustes.js',
   'js/telas/boas-vindas.js',
-  'icones/icone.svg',
+  'icones/favicon-32.png',
   'icones/icone-192.png',
   'icones/icone-512.png',
+  'icones/icone-maskable-512.png',
   'icones/apple-touch-icon.png',
+  'receitas/bolinho-banana.jpg',
+  'receitas/paozinho-flocao.jpg',
+  'receitas/maca-canela.jpg',
+  'receitas/panqueca-batata-doce.jpg',
+  'receitas/creme-abacate.jpg',
+  'receitas/bolinho-abobrinha.jpg',
+  'receitas/mingau-pera.jpg',
+  'receitas/miniomelete.jpg',
   'audios/catalogo.json',
   'audios/relaxamento-noite.mp3',
   'audios/nadi-shodhana.mp3',

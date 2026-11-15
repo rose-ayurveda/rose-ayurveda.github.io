@@ -69,6 +69,7 @@ button { font: inherit; color: inherit; }
 }
 .marca { display: flex; align-items: center; gap: 8px; font-family: var(--serifa); color: var(--marca-escura); font-size: 1.05rem; }
 .marca svg { width: 26px; height: 26px; }
+.marca-icone { width: 30px; height: 30px; border-radius: 8px; display: block; }
 .botao-icone {
   width: 44px; height: 44px; border-radius: 50%;
   display: grid; place-items: center;
@@ -77,7 +78,13 @@ button { font: inherit; color: inherit; }
 .botao-icone svg { width: 24px; height: 24px; }
 .botao-icone[hidden] { display: none; }
 .topo-esquerda { display: flex; align-items: center; gap: 2px; min-height: 44px; }
-#botao-voltar { margin-left: -10px; }
+#botao-voltar { margin-left: -8px; width: auto; border-radius: 22px; padding: 0 12px 0 4px; font-weight: 600; font-size: .95rem; }
+#botao-voltar:not([hidden]) { display: inline-flex; align-items: center; gap: 2px; }
+#botao-voltar:active { background: var(--linha); }
+.foto-receita-mini { width: 56px; height: 42px; object-fit: cover; border-radius: 8px; flex: none; }
+details.secao > summary > span { flex: 1; }
+.foto-receita { width: 100%; max-height: 240px; object-fit: cover; border-radius: 12px; display: block; margin: 0 0 10px; }
+.dica-receita { background: var(--marca-clara); border-radius: 12px; padding: 10px 12px; }
 
 main {
   max-width: 640px; margin: 0 auto;

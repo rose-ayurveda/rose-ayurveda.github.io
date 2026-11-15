@@ -14,9 +14,9 @@ export function horaAgora(fuso = 'America/Sao_Paulo') {
   return Number(new Intl.DateTimeFormat('en-GB', { timeZone: fuso, hour: '2-digit', hourCycle: 'h23' }).format(new Date()));
 }
 
-// O dia anterior pode ser marcado até o meio-dia seguinte.
-export function podeMarcarOntem(fuso) {
-  return horaAgora(fuso) < 12;
+// O dia anterior pode ser marcado o dia todo (antes, só até o meio-dia; mudança pedida pela Rose em 15/11/2026).
+export function podeMarcarOntem() {
+  return true;
 }
 
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
