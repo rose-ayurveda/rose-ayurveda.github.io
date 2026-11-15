@@ -1,6 +1,6 @@
 // Guarda o app e os áudios no celular para funcionar sem internet.
 // Ao publicar uma nova versão, aumente o número abaixo E o de VERSAO_APP em js/ui.js.
-const VERSAO = 'rose-v28';
+const VERSAO = 'rose-v29';
 const ARQUIVOS = [
   './',
   'index.html',
@@ -55,6 +55,8 @@ const ARQUIVOS = [
   'icones/icone-512.png',
   'icones/icone-maskable-512.png',
   'icones/apple-touch-icon.png',
+  'receitas/cha-digestivo.jpg',
+  'receitas/sopa-legumes-frango.jpg',
   'receitas/bolinho-banana.jpg',
   'receitas/paozinho-flocao.jpg',
   'receitas/maca-canela.jpg',
