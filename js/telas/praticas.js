@@ -161,6 +161,7 @@ export function cartaoPratica(conteudo, item, dia, { compacto = false, ontem = f
     <article class="cartao pratica ${situacao}">
       <p class="rotulo">${esc(hora)}${adiado ? ' (adiado)' : ''} · ${esc(item.duracao)}</p>
       <h3 style="margin:0 0 4px">${esc(item.nome)}</h3>
+      ${item.texto ? `<p class="texto-longo" style="margin:0 0 6px">${rico(item.texto)}</p>` : ''}
       ${compacto ? '' : `
         <details class="detalhe-pratica">
           <summary>Por que para você e passo a passo</summary>
